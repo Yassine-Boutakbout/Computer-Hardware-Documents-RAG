@@ -1,0 +1,5 @@
+Flask
+Pydantic
+Streamlit
+langchain
+chromadb
