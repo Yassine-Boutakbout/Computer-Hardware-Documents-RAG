@@ -1,0 +1,17 @@
+{
+    "ENVIRONMENT":"dev",
+    "VERSION": "1.0",
+    "LOGS": {
+        "LOGGING_LEVEL": "INFO",
+        "LOG_FILE": "logs/log_1.log"
+    },
+    "LANGCHAIN_TRACING_V2": "true",
+    "LANGCHAIN_ENDPOINT": "https://api.smith.langchain.com",
+    "LANGCHAIN_API_KEY": "YOUR_LANGCHAIN_API_KEY_HERE",
+    "ollama_url": "http://localhost:11434",
+    "ollama_model": "qwen3:1.7b",
+    "temperature": 0,
+    "data_path": "data/docs",
+    "chunk_size": 500,
+    "chunk_overlap": 20
+}

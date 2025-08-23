@@ -1,4 +1,6 @@
 # Ignore all files in the .data directory
-.data/
-.env
-.DS_Store
+__pycache__/
+.env/
+data/
+db/
+logs/

@@ -2,4 +2,9 @@ Flask
 Pydantic
 Streamlit
 langchain
+langchainhub
+langchain_community
+tiktoken
+pypdf
+loguru
 chromadb
