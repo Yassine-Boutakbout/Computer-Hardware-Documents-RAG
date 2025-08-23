@@ -12,7 +12,7 @@ In this repo we re going to setup a system that uses basic rag techniques to sea
 3. Creating a Virtual Environment (Highly Recommended) :
 - Open your terminal/command prompt.
 - Navigate to the directory where you want to create your project (e.g., cd Documents/rag-docs).
-- Create a virtual environment: python -m venv .venv (This creates a folder named .venv in your project directory).
+- Create a virtual environment: ```python -m venv .venv ```(This creates a folder named .venv in your project directory).
 - Activate the virtual environment (in your commandline prompt):
 
   Windows: ```.venv\Scripts\activate```

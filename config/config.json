@@ -12,6 +12,7 @@
     "ollama_model": "qwen3:1.7b",
     "temperature": 0,
     "data_path": "data/docs",
+    "db_path": "db/",
     "chunk_size": 500,
     "chunk_overlap": 20
 }
