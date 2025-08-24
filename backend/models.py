@@ -1,10 +1,9 @@
-from pydantic import BaseModel, Field
-
+from pydantic import BaseModel
+from typing import List
 
 class AskRequest(BaseModel):
-    question: str = Field(alias="query")   # user query
-
+    question: str 
 
 class AskResponse(BaseModel):
     answer: str
-    sources: list[str]      # titles of the docs that were used
+    sources: List[str]

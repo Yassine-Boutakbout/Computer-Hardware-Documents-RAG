@@ -23,7 +23,7 @@ except FileNotFoundError as e:
 # Assumes the DB folder created by data_processing.py
 chroma = Chroma(
     persist_directory=config["db_path"],
-    embedding_function=OllamaEmbeddings(model=config["ollama_model"]).embed_query
+    embedding_function=OllamaEmbeddings(model=config["ollama_model"])
 )
 
 # ------------------------------------------------------------------
@@ -45,12 +45,14 @@ Answer:
     input_variables=["context", "question"]
 )
 
+#TODO: improve to use invoke method instead of '__call__()'
 chain = RetrievalQA.from_chain_type(
     llm=ChatOllama(model=config["ollama_model"]),  # same as embedding model
     chain_type="stuff",
     retriever=chroma.as_retriever(search_kwargs={"k": 4}), # Gets 4 documents for a query search
     return_source_documents=True,
     chain_type_kwargs={"prompt": prompt},
+    input_key="question",        # <-- tell the chain to look for "question"
 )
 # ------------------------------------------------------------------
 # 3️⃣ Helper to run a query
