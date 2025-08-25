@@ -5,6 +5,8 @@ In this repo we re going to setup a system that uses basic rag techniques to sea
 
 
 ## Setup backend environment
+
+### Installation steps
 1. Python: You're likely to have Python already. If not, download the latest version from https://www.python.org/downloads/. Make sure to check the box "Add Python to PATH" during installation.
 
 2. Pip: Pip is Python's package installer. It should come with your Python installation. You can check if you have it by opening a terminal/command prompt and typing pip --version
@@ -49,7 +51,7 @@ python
 ```
 If no errors occur, the installation was successful.
 
-## RAG‑powered Question‑Answer API
+### RAG‑powered Question‑Answer API
 
 This service exposes a single HTTP endpoint that accepts a natural‑language question and returns an answer that is generated only from the knowledge base stored in the RAG vector store.
 All requests and responses are JSON‑encoded and the API follows a REST style.
@@ -84,7 +86,7 @@ cURL
 ```
 curl -X POST "http://localhost:5000/ask" \
      -H "Content-Type: application/json" \
-     -d 'What is RAM?'
+     -d '{"question":"What is RAM?"}'
 ```
 Response
 ```
@@ -119,11 +121,40 @@ Success Response (200 OK)
 ```
 {"status":"healthy"}
 ```
-3️⃣ / (root)
-Property	Value
-Method	GET
-URL	/
-Description	Returns a friendly greeting or brief description of the service.
-Response
-Status Code	Body
-200 OK	{"message":"RAG QA Service – ready to answer questions."}
+
+## How to run
+
+### Prerequisites
+1. Install Ollama and ensure it's running on your system
+2. Make sure you have the required Python packages installed
+
+### Backend Setup
+1. Navigate to the project root directory
+2. Activate the virtual environment:
+   ```bash
+   # Windows
+   .venv\Scripts\activate
+   
+   # macOS/Linux
+   source .venv/bin/activate
+   ```
+
+3. Set the Flask app environment variable:
+   ```bash
+   # Windows
+   set FLASK_APP=backend/main.py
+   
+   # macOS/Linux
+   export FLASK_APP=backend/main.py
+   ```
+
+4. Run the Flask application:
+   ```bash
+   flask run
+   ```
+
+The server will start on `http://127.0.0.1:5000` by default.
+
+### API Endpoints
+- `GET /healthcheck` - Health check endpoint
+- `POST /ask` - Submit questions to the RAG system (send JSON with `{"question": "your question"}`)

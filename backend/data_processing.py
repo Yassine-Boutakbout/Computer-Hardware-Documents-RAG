@@ -16,7 +16,7 @@ class DataProcessing():
     @classmethod
     def launch_processing(cls):
         if not cls.__instance:
-            __DataProcessing()
+            __DataProcessing().Processing()
             cls.__instance = True
             return cls.__instance
 

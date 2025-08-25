@@ -1,5 +1,6 @@
 import os
 import json
+import asyncio
 from fastapi import Request  # used only for type hinting
 from logger.logger import Logger
 from flask import Flask, jsonify, request
@@ -57,5 +58,5 @@ async def data_processing():
 if __name__ == "__main__":
     # make sure Ollama is running before you start the server
     os.environ["OLLAMA_API_URL"] = config["ollama_url"]
-    data_processing()
+    asyncio.run(data_processing())
     app.run(host="0.0.0.0", port=5000, debug=True)
