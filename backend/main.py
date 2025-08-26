@@ -50,7 +50,7 @@ def ask():
     return jsonify(resp.dict())
 
 async def data_processing():
-    await DataProcessing().launch_processing()
+    await DataProcessing.launch_processing()
 
 # ------------------------------------------------------------------
 # Boilerplate

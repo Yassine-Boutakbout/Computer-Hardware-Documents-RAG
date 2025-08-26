@@ -9,7 +9,7 @@
     "LANGCHAIN_ENDPOINT": "https://api.smith.langchain.com",
     "LANGCHAIN_API_KEY": "YOUR_LANGCHAIN_API_KEY_HERE",
     "ollama_url": "http://localhost:11434",
-    "ollama_model": "qwen3:1.7b",
+    "ollama_model": "qwen3:30b",
     "temperature": 0,
     "data_path": "data/docs",
     "db_path": "db/",

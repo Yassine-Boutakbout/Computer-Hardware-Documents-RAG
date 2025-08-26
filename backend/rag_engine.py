@@ -1,10 +1,13 @@
 import json
 from logger.logger import Logger
-from langchain.chains import RetrievalQA
+
 from langchain.chat_models import ChatOllama
 from langchain.prompts import PromptTemplate
+from langchain.prompts import ChatPromptTemplate
 from langchain_community.vectorstores import Chroma
+from langchain_core.output_parsers import StrOutputParser
 from langchain_community.embeddings import OllamaEmbeddings
+from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 
 
 logger = Logger.get_instance()
@@ -16,7 +19,6 @@ try:
 except FileNotFoundError as e:
     logger.warning(f"Config file not found; exception: {str(e)}")
 
-
 # ------------------------------------------------------------------
 # 1️⃣ Load the vector store
 # ------------------------------------------------------------------
@@ -26,40 +28,66 @@ chroma = Chroma(
     embedding_function=OllamaEmbeddings(model=config["ollama_model"])
 )
 
-# ------------------------------------------------------------------
-# 2️⃣ Create a RetrievalQA chain
-# ------------------------------------------------------------------
-# Prompt that concatenates retrieved chunks + the question
-prompt = PromptTemplate(
-    template="""
-You are a helpful assistant.  Use the following context to answer the question.  
-If the answer cannot be found in the context, say you don’t know.
+# 2️⃣ Create a retriever (gets 4 docs per query)
+retriever = chroma.as_retriever(search_kwargs={"k": 1})
 
-Context:
+# ------------------------------------------------------------------
+# 3️⃣ Prompt template (just the context + question)
+# ------------------------------------------------------------------
+prompt_template = """You are a helpfull assistant, you answer users questions directly.
+Be very professional and very concise. If you don't know the answer just say I don't know.
+Your knowledge is based on documents passed to you as context. 
+Your answers doesn't need to be excat, you just need to quote from context if there are any similarities to users question.
+Answer the question based only on the following context:
 {context}
 
 Question: {question}
 
-Answer:
-""",
-    input_variables=["context", "question"]
+Answer (and the *names* of the source files used are in parentheses after each sentence):
+"""
+prompt = ChatPromptTemplate.from_template(prompt_template)
+
+# 4️⃣ LLM
+llm = ChatOllama(model=config["ollama_model"], temperature=0)
+
+# ------------------------------------------------------------------
+# 5️⃣  Build the chain as a Runnable pipeline (answer + sources)
+# ------------------------------------------------------------------
+rag_chain_with_sources = (
+    # Step 1 – the *only* input you give to the chain is the question
+    RunnablePassthrough()                                         # <- input: question string
+
+    # Step 2 – create a dict that contains the question **and** the
+    #          list of documents that the retriever found
+    | RunnableLambda(lambda q: {
+        "question": q,
+        "context": retriever.get_relevant_documents(q)          # <-- list[Document]
+    })
+
+    # Step 3 – feed the dict into the prompt template
+    | prompt
+
+    # Step 4 – run the LLM
+    | llm
+
+    # Step 5 – just grab the text from the LLM (no JSON, just a plain string)
+    | StrOutputParser()
 )
 
-#TODO: improve to use invoke method instead of '__call__()'
-chain = RetrievalQA.from_chain_type(
-    llm=ChatOllama(model=config["ollama_model"]),  # same as embedding model
-    chain_type="stuff",
-    retriever=chroma.as_retriever(search_kwargs={"k": 4}), # Gets 4 documents for a query search
-    return_source_documents=True,
-    chain_type_kwargs={"prompt": prompt},
-    input_key="question",        # <-- tell the chain to look for "question"
-)
-# ------------------------------------------------------------------
-# 3️⃣ Helper to run a query
-# ------------------------------------------------------------------
+# 6️⃣ Helper that runs a question
 def ask(question: str) -> tuple[str, list[str]]:
-    result = chain({"question": question})
-    answer = result["result"]
-    # Build a simple list of source titles
-    sources = [doc.metadata.get("source", "unknown") for doc in result["source_documents"]]
-    return answer.strip(), sources
+    """
+    Returns the LLM answer **and** the list of sources that were used
+    to build the context for that answer.
+    """
+    # 1️⃣  Grab the relevant documents once (so we can inspect them)
+    docs = retriever.get_relevant_documents(question)
+
+     # 2️⃣  Run the pipeline – it will internally *re‑run* the retriever,
+    #      but we keep the documents we just fetched.
+    answer = rag_chain_with_sources.invoke(question).strip()
+
+    # 3️⃣  Pull the 'source' metadata from each document
+    sources = [doc.metadata.get("source", "") for doc in docs]
+
+    return answer, sources
