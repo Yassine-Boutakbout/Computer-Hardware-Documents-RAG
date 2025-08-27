@@ -77,4 +77,4 @@ if __name__ == "__main__":
     asyncio.run(chroma_client:=__DataProcessing().Processing())
     for i, doc in enumerate(chroma_client.get_all_documents()[:5]):   # just first 5
         logger.debug(f"Chunk {i} | Source: {doc.metadata.get('source')}")
-    print("Data processing complete.  Embeddings stored in ChromaDB.")
+    print("Test Data processing complete.  Embeddings stored in ChromaDB.")
