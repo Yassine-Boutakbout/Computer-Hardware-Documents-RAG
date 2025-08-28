@@ -158,3 +158,17 @@ The server will start on `http://127.0.0.1:5000` by default.
 ### API Endpoints
 - `GET /healthcheck` - Health check endpoint
 - `POST /ask` - Submit questions to the RAG system (send JSON with `{"question": "your question"}`)
+
+## Setup frontend environment
+In this part we are going to make use of our already existing virtual environment (.venv), that has streamlit library installed, without needing to create a new one.
+
+### How to run
+
+- Open your terminal/command prompt.
+- Navigate to the directory where you want to create your project (e.g., cd Documents/rag-docs).
+- Type this command `streamlit run app.py`
+
+Open the link that Streamlit prints in your terminal (usually http://localhost:8501).
+
+You’ll see a clean UI – type a question, hit Send, and the answer will appear.
+Feel free to style the page further `(add st.markdown("""<style>…</style>""", unsafe_allow_html=True))` or swap in any other front‑end you like. Happy querying!
