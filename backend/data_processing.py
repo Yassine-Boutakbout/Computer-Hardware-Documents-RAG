@@ -1,6 +1,7 @@
 import os
 import json
 import asyncio
+import pathlib
 from logger.logger import Logger
 from langchain.schema import Document
 from langchain.vectorstores import Chroma
@@ -51,12 +52,39 @@ class __DataProcessing():
         chunks = text_splitter.split_documents(documents)
 
         # **Add a 'source' metadata field to every chunk**
-        #    (the original file name without path)
         for chunk in chunks:
             # If you loaded the PDF via DirectoryLoader, the metadata already contains
             # "source": "path/to/file.pdf".  We'll override it with just the file name.
             file_path = chunk.metadata.get("source", "")          # original full path
             chunk.metadata["source"] = os.path.basename(file_path)
+
+        if config.get("store_chunks", False):
+            # Decide whether to store chunks as Plain-Text version for debugging purposes !!
+            output_dir   = pathlib.Path(config.get("output_path", "output"))
+            output_file  = output_dir / "chunks.txt"
+
+            # make sure the directory exists
+            output_dir.mkdir(parents=True, exist_ok=True)
+    
+            # Open the file & write every chunk
+            try:
+                with open(output_file, "w", encoding="utf-8") as fp:
+                    for i, chunk in enumerate(chunks, start=1):
+                        # Every Document from LangChain has a `page_content` attribute that holds the text.
+                        # If you also want the metadata (file name, page number, …) add it too.
+                        fp.write(f"--- CHUNK {i} ---\n")
+                        fp.write(chunk.page_content)
+                        fp.write("\n\n")
+                        # Optional: write metadata on a separate line (JSON‑serialisable)
+                        if chunk.metadata:
+                            fp.write(f"Metadata: {json.dumps(chunk.metadata, ensure_ascii=False)}\n\n")
+
+                logger.info(f"Successfully written {len(chunks)} chunks to {output_file}")
+            except IOError as e:
+                logger.warning(f"An Error occured while writing chunks to file, error details: {str(e)}")
+            except Exception as e:
+                logger.warning(f"An exception occured while writing chunks to file, more details: {str(e)}")
+
 
         # Creating Embeddings
         # Example using OllamaEmbeddings: All You'll need is to install Ollama and run it with the model you want to use.

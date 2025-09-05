@@ -13,6 +13,8 @@
     "temperature": 0,
     "data_path": "data/docs",
     "db_path": "db/",
+    "store_chunks": true,
+    "output_path": "output/",
     "chunk_size": 500,
     "chunk_overlap": 20
 }
